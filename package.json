@@ -1,5 +1,5 @@
 {
-  "name": "solid-universal-store",
+  "name": "solid-yjs-store",
   "version": "0.0.0",
   "description": "",
   "scripts": {
@@ -17,6 +17,8 @@
   "dependencies": {
     "solid-js": "^1.5.1",
     "y-webrtc": "^10.2.3",
+    "y-websocket": "^1.4.5",
+    "y-websockets-server": "^9.2.1",
     "yjs": "^13.5.43"
   }
 }
