@@ -17,4 +17,10 @@ export const ERROR = (path: string[], ...args: any[]) => {
   console.error(pathText, ...pathStyles, ...args)
 }
 
+export const UNEXPECTED = (...args: any[]) =>
+  console.error('UNEXPECTED CODE REACHED!!!', ...args)
+
+export const NOTIMPLEMENTED = (...args: any[]) =>
+  console.error('NOT IMPLMENENTED', ...args)
+
 export default { LOG, ERROR }

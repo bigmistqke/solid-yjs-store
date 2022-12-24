@@ -6,9 +6,10 @@ export default class Queue {
   add(callback: () => void) {
     if (this.queue.length === 0) {
       this.start = performance.now()
-      setTimeout(() => this.execute(), 100)
+      setTimeout(() => this.execute(), 50)
     }
     this.queue.push(callback)
+    // callback()
   }
   execute() {
     batch(() => this.queue.forEach((callback) => callback()))
