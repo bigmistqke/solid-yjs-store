@@ -17,8 +17,8 @@ export const setYMapOrDoc = (
 }
 
 const setYArray = (yarray: Y.Array<any>, index: number, value: any) => {
+  if (yarray.length > index) yarray.delete(index)
   yarray.insert(index, [value])
-  if (yarray.length > 1) yarray.delete(index + 1)
 }
 
 export const setYValue = (

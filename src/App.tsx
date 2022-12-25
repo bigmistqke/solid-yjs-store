@@ -27,10 +27,12 @@ const App: Component = () => {
     setStore('users', { shallowly: 'merged' })
   }
 
+  const random = () => Math.floor(Math.random() * 1000)
+
   const setBoris = () => {
     setStore('users', 'boris', {
-      id: Math.random(),
-      password: Math.random().toString(),
+      id: random(),
+      password: random().toString(),
       tests: [
         { id: 0, test: ['ok'] },
         { id: 1, test: ['ok'] },
@@ -44,10 +46,12 @@ const App: Component = () => {
       'users',
       'boris',
       'tests',
-      ({ id }) => id > 0,
+      (value) => {
+        return value.id > 0
+      },
       'test',
       0,
-      'yes!!' + Math.random()
+      'filter' + random()
     )
   }
 
@@ -56,43 +60,19 @@ const App: Component = () => {
       'users',
       'boris',
       'tests',
-      1,
-      produce((state: any) => {
-        state.id = state.id + state.id
-      })
-    )
-  }
-
-  const setBorisFilterProduce = () => {
-    setStore(
-      'users',
-      'boris',
-      'tests',
-      ({ id }) => {
-        return id > 0
-      },
-      'test',
-      produce((state: any) => {
-        state[0] = Math.random()
-      })
-    )
-  }
-
-  const setBorisFilterCallback = () => {
-    setStore(
-      'users',
-      'boris',
-      'tests',
-      ({ id }) => {
-        return id > 0
-      },
-      'test',
       0,
-      (number) => {
-        console.log('number is ', number)
-        return number + number
-      }
+      'test',
+      produce((state: any) => {
+        state.unshift('added-with-produce' + random())
+      })
     )
+  }
+
+  const setBorisCallback = () => {
+    setStore('users', 'boris', 'tests', 0, 'test', (state: any) => [
+      ...state,
+      'added-with-callback' + random(),
+    ])
   }
 
   const tests = {
@@ -101,8 +81,11 @@ const App: Component = () => {
     setBoris,
     setBorisFilter,
     setBorisProduce,
-    setBorisFilterProduce,
-    setBorisFilterCallback,
+    /* 
+    setBorisFilterProduce2,
+    setBorisProduceUnshift,
+    setBorisProduceSplice, */
+    setBorisCallback,
   }
 
   return (

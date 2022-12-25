@@ -3,16 +3,19 @@
 
 export default function minimumMutationOperations<T>(
   oldArray: T[],
-  newArray: T[]
+  newArray: T[],
+  dirty?: Set<number | string>
 ) {
   const result: {
     added: { index: number; value: T }[]
     moved: { oldIndex: number; newIndex: number; value: T }[]
     deleted: number[]
+    dirty: number[]
   } = {
     added: [],
     moved: [],
     deleted: [],
+    dirty: [],
   }
 
   // fast path for empty arrays
@@ -57,20 +60,22 @@ export default function minimumMutationOperations<T>(
     for (i = start; i <= end; i++) {
       item = oldArray[i]
       j = newIndices.get(item)!
+
       if (j !== undefined && j !== -1) {
         result.moved[j] = { oldIndex: i, newIndex: j, value: item }
-
         j = newIndicesNext[j]
         newIndices.set(item, j)
       } else {
-        result.deleted.push(i)
+        if (!dirty?.has(i)) result.deleted.push(i)
       }
     }
 
     // 2) set all the new values, pulling from the temp array if copied, otherwise entering the new value
     for (j = start; j <= newEnd; j++) {
       if (!(j in result.moved)) {
-        result.added.push({ index: j, value: newArray[j] })
+        if (!dirty?.has(j)) {
+          result.added.push({ index: j, value: newArray[j] })
+        }
       }
     }
   }
