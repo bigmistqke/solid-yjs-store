@@ -1,4 +1,4 @@
-import { $PROXY } from 'solid-js'
+import { $PROXY, batch } from 'solid-js'
 import {
   createStore,
   produce,
@@ -270,50 +270,74 @@ Multiple entry-points are currently not supported in yjsStore.`
   }
 
   const setObserver = (yparent: YMapOrArray, sparent: any) => {
-    // if (observers.get(sparent) !== undefined) return
+    if (yparent instanceof Y.Array) {
+      yparent.observe((event) =>
+        batch(() => {
+          if (event.transaction.local) return
+          let index = 0
+          event.changes.delta.forEach((delta) => {
+            if (delta.retain) {
+              index += delta.retain
+            } else if (delta.insert) {
+              const insert = Array.isArray(delta.insert)
+                ? delta.insert.map((yvalue) =>
+                    typeof yvalue === 'object' ? yvalue.toJSON() : yvalue
+                  )
+                : [delta.insert]
 
-    yparent.observe((changes, transaction) => {
-      if (transaction.local) return
-
-      const [key] = transaction.changed.keys()
-
-      const allKeysToUpdate = getKeysToUpdateFromTransaction(transaction)
-
-      if (yparent instanceof Y.Array) {
-        iterateObservers(yparent, sparent)
-        q.add(() => {
-          setLeaf(sparent)(reconcile(yparent.toJSON()))
-          iterateObservers(yparent, sparent)
+              q.add(() => {
+                setLeaf(sparent)((sparent) => [
+                  ...sparent.slice(0, index),
+                  ...insert,
+                  ...sparent.slice(index, sparent.length),
+                ])
+                index += insert.length
+                iterateObservers(yparent, sparent)
+              })
+            } else if (delta.delete) {
+              q.add(() => {
+                setLeaf(sparent)((sparent) => [
+                  ...sparent.slice(0, index),
+                  ...sparent.slice(index + delta.delete!, sparent.length),
+                ])
+              })
+            }
+          })
         })
-      } else {
-        allKeysToUpdate.forEach((keyToUpdate) => {
-          const yvalueToUpdate = getYValue(yparent, keyToUpdate)
-          if (!keyToUpdate) {
-            UNEXPECTED('keyToUpdate is null', keyToUpdate)
-            return
-          }
-          if (!yvalueToUpdate && keyToUpdate in sparent) {
-            q.add(() => setLeaf(sparent)(keyToUpdate, undefined))
-          } else if (
-            yvalueToUpdate instanceof Y.Array ||
-            yvalueToUpdate instanceof Y.Map
-          ) {
-            q.add(() => {
-              setLeaf(sparent)(keyToUpdate, reconcile(yvalueToUpdate.toJSON()))
-              setObserver(yvalueToUpdate, sparent[keyToUpdate])
-              iterateObservers(yvalueToUpdate, sparent[keyToUpdate])
-            })
-          } else {
-            q.add(() => setLeaf(sparent)(keyToUpdate, yvalueToUpdate))
-          }
+      )
+    } else {
+      yparent.observe((event) =>
+        batch(() => {
+          event.keysChanged.forEach((keyToUpdate) => {
+            const yvalueToUpdate = getYValue(yparent, keyToUpdate)
+            if (!keyToUpdate) {
+              UNEXPECTED('keyToUpdate is null', keyToUpdate)
+              return
+            }
+            if (!yvalueToUpdate && keyToUpdate in sparent) {
+              q.add(() => setLeaf(sparent)(keyToUpdate, undefined))
+            } else if (
+              yvalueToUpdate instanceof Y.Array ||
+              yvalueToUpdate instanceof Y.Map
+            ) {
+              q.add(() => {
+                setLeaf(sparent)(
+                  keyToUpdate,
+                  reconcile(yvalueToUpdate.toJSON())
+                )
+                setObserver(yvalueToUpdate, sparent[keyToUpdate])
+                iterateObservers(yvalueToUpdate, sparent[keyToUpdate])
+              })
+            } else {
+              q.add(() => setLeaf(sparent)(keyToUpdate, yvalueToUpdate))
+            }
+          })
         })
-      }
-    })
+      )
+    }
 
     observers.set(sparent, yparent)
     observers.set(yparent, sparent)
-
-    LOG(['setObserver'], sparent, yparent, observers)
   }
 
   const iterateObservers = (
@@ -333,17 +357,6 @@ Multiple entry-points are currently not supported in yjsStore.`
         iterateObservers(yvalue, sparent[key])
       }
     })
-  }
-
-  const isValidArrayIndexOrObjectKey = (
-    arrayOrObject: any[] | { [key: string]: any },
-    keyOrIndex: number | string
-  ) => {
-    if (Array.isArray(arrayOrObject) && typeof keyOrIndex === 'number')
-      return true
-    if (typeof arrayOrObject !== 'object' && typeof keyOrIndex === 'string')
-      return true
-    return false
   }
 
   //  proxy for produce-function

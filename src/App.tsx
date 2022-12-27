@@ -75,17 +75,20 @@ const App: Component = () => {
     ])
   }
 
+  const setBorisCallback2 = () => {
+    setStore('users', 'boris', 'tests', 0, 'test', (state: any) => [
+      'added-with-callback' + random(),
+      ...state,
+    ])
+  }
+
   const tests = {
     reset,
     shallowMerge,
     setBoris,
     setBorisFilter,
-    setBorisProduce,
-    /* 
-    setBorisFilterProduce2,
-    setBorisProduceUnshift,
-    setBorisProduceSplice, */
     setBorisCallback,
+    setBorisCallback2,
   }
 
   return (
