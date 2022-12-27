@@ -1,7 +1,6 @@
 ## solid-yjs-store
 
-a synced [solid](https://github.com/solidjs/solid) store built on top of [yjs](https://github.com/yjs/yjs).<br/>
-with the getter/setter-API of a regular [solid-store](https://www.solidjs.com/docs/latest#createstore)<br/>
+a [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type)-store built on top of [yjs](https://github.com/yjs/yjs) for [solidjs](https://github.com/solidjs/solid) with the getter/setter-API of a regular [solid-store](https://www.solidjs.com/docs/latest#createstore)<br/>
 inspired by [syncedstore](https://syncedstore.org/) and [valtio-yjs](https://github.com/dai-shi/valtio-yjs).<br/>
 
 ### setup
