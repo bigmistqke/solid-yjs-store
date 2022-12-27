@@ -1,7 +1,7 @@
 ## solid-yjs-store
 
 a synced [solid](https://github.com/solidjs/solid) store built on top of [yjs](https://github.com/yjs/yjs).
-inspired by [syncedstore](https://syncedstore.org/) and [valtio-yjs](https://github.com/dai-shi/valtio-yjs).
+inspired by [syncedstore](https://syncedstore.org/) and [valtio-yjs](https://github.com/dai-shi/valtio-yjs), but with the getter/setter-API of a regular [solid-store](https://www.solidjs.com/docs/latest#createstore) 
 
 ### setup
 ```
