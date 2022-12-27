@@ -35,3 +35,5 @@ setYjsStore('data', 'shallow', 'merged' )       //  {data: {key: 'value', shallo
 ¹ produce is still in development <br/>
 ² currently only 1 entry-path per reactive value is allowed: multiple entry-paths of one value could cause bugs!
 
+🚧 !UNDER CONSTRUCTION! 🚧
+🚧 !ENTER  AT OWN RISK! 🚧
